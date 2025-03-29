@@ -1,25 +1,21 @@
-//  check current route     [X]
-//
-//  list folder and file    [X]
-//  in current route
+//  detect folders  []
 
-use std::{env, ffi::OsString, fmt, fs};
+use std::{fmt, fs};
 
 struct FileInfo {
-    name: OsString,
+    name: String,
     metadata: fs::Metadata,
 }
 
 impl fmt::Display for FileInfo {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{{{:?}}}{{{} bytes}}", self.name, self.metadata.len())
+        write!(f, "{:<20} {:>8} bytes", self.name, self.metadata.len())
     }
 }
 
 fn main() -> std::io::Result<()> {
     //  current route
-
-    let path = env::current_dir()?;
+    //let path = std::env::current_dir()?;
 
     //  list folder and file in current route
 
@@ -27,12 +23,12 @@ fn main() -> std::io::Result<()> {
 
     for entry in fs::read_dir("./")? {
         let entry = entry?;
-        let fl_md = entry.metadata()?;
-        let fl_n = entry.file_name();
+        let file_metadata = entry.metadata()?;
+        let file_name = entry.file_name().into_string().unwrap();
 
         items.push(FileInfo {
-            name: fl_n,
-            metadata: fl_md,
+            name: file_name,
+            metadata: file_metadata,
         });
     }
 
