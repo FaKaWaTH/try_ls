@@ -3,13 +3,23 @@
 //  list folder and file    [X]
 //  in current route
 
-use std::{env, fs};
+use std::{env, ffi::OsString, fmt, fs};
+
+struct FileInfo {
+    name: OsString,
+    metadata: fs::Metadata,
+}
+
+impl fmt::Display for FileInfo {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{{{:?}}}{{{} bytes}}", self.name, self.metadata.len())
+    }
+}
 
 fn main() -> std::io::Result<()> {
     //  current route
 
     let path = env::current_dir()?;
-    println!("{}", path.display());
 
     //  list folder and file in current route
 
@@ -17,14 +27,17 @@ fn main() -> std::io::Result<()> {
 
     for entry in fs::read_dir("./")? {
         let entry = entry?;
+        let fl_md = entry.metadata()?;
         let fl_n = entry.file_name();
-        let fl_n_str = fl_n.to_string_lossy().into_owned();
 
-        items.push(fl_n_str);
+        items.push(FileInfo {
+            name: fl_n,
+            metadata: fl_md,
+        });
     }
 
-    for item in 0..items.len() {
-        println!("{}", items[item]);
+    for item in &items {
+        println!("{}", item);
     }
 
     Ok(())
